@@ -153,7 +153,6 @@ def main(args):
         # set [CLS] and [SEP] tokens to forbidden
         important_fragment = [[1,2], [4,5]]
         important_fragment = sum([list(range(i[0],i[1])) for i in important_fragment],[])
-        forbidden = ~forbidden
         forbidden[important_fragment] = False
         offset = 0 if args.model == 'gpt2' else 1
         if args.dataset == 'mnli':
@@ -268,6 +267,7 @@ def main(args):
         with torch.no_grad():
             for j in range(args.gumbel_samples):
                 adv_ids = F.gumbel_softmax(log_coeffs, hard=True).argmax(1)
+                adv_ids = adv_ids * (~forbidden) + input_ids *forbidden
                 if args.dataset == 'mnli':
                     if args.attack_target == 'premise':
                         adv_ids_premise = adv_ids[offset:(premise_length-offset)].cpu().tolist()
