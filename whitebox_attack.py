@@ -192,7 +192,7 @@ def main(args):
         else:
             token_type_ids = encoded_dataset[testset_key]['token_type_ids'][idx]
         label = label_perm(encoded_dataset[testset_key]['label'][idx])
-        clean_logit = model(input_ids=torch.LongTensor(input_ids).unsqueeze(0).cuda())[0].data.cpu()
+        clean_logit = test_classifier(input_ids=torch.LongTensor(input_ids).unsqueeze(0).cuda(), token_type_ids=(None if token_type_ids is None else torch.LongTensor(token_type_ids).unsqueeze(0).cuda()))[0].data.cpu()
         print('LABEL')
         print(label)
         print('TEXT')
@@ -203,7 +203,7 @@ def main(args):
         forbidden = np.ones(len(input_ids)).astype('bool')
         # set [CLS] and [SEP] tokens to forbidden
         important_fragment = []
-        cam_target = model(input_ids=input_ids, index=label)[0]
+        cam_target = model(input_ids==torch.LongTensor(input_ids), index=label)[0]
         cam_target = cam_target.clamp(min=0)
         cam = cam_target
         cam = scores_per_word_from_scores_per_token(tokenizer.decode(input_ids).split(), tokenizer,input_ids[0], cam)
@@ -343,7 +343,7 @@ def main(args):
                     adv_text = tokenizer.decode(adv_ids)
                     x = tokenizer(adv_text, max_length=256, truncation=True, return_tensors='pt')
                     #token_errors.append(wer(adv_ids, x['input_ids'][0]))
-                adv_logit = model(input_ids=torch.LongTensor(x['input_ids']).cuda(), attention_mask=x['attention_mask'].cuda())[0].data.cpu()
+                adv_logit = test_classifier(input_ids=x['input_ids'].cuda(), attention_mask=x['attention_mask'].cuda(),token_type_ids=(x['token_type_ids'].cuda() if 'token_type_ids' in x else None))[0].data.cpu()
                 #print(adv_logit.size(),type(label))
                 #choice_list.append([adv_logit[0][label],adv_text])
                 if adv_logit[0][label] > ma[0][label]:
