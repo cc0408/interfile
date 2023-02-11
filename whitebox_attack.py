@@ -22,7 +22,53 @@ import torch.nn.functional as F
 import csv
 from src.dataset import load_data
 from src.utils import bool_flag, get_output_file, print_args, load_gpt2_from_dict
+import json
+from BERT_cls_lrp import BertForSequenceClassification as BertForSequenceClassificationTest
+from ExplanationGenerator import Generator
 
+def scores_per_word_from_scores_per_token(input, tokenizer, input_ids, scores_per_id):
+    words = tokenizer.convert_ids_to_tokens(input_ids)
+    words = [word.replace('##', '') for word in words]
+    score_per_char = []
+
+    # TODO: DELETE
+    input_ids_chars = []
+    for word in words:
+        if word in ['[CLS]', '[SEP]', '[UNK]', '[PAD]']:
+            continue
+        input_ids_chars += list(word)
+    # TODO: DELETE
+
+    for i in range(len(scores_per_id)):
+        if words[i] in ['[CLS]', '[SEP]', '[UNK]', '[PAD]']:
+            continue
+        score_per_char += [scores_per_id[i]] * len(words[i])
+
+
+    score_per_word = []
+    start_idx = 0
+    end_idx = 0
+    # TODO: DELETE
+    words_from_chars = []
+    for inp in input:
+        if start_idx >= len(score_per_char):
+            break
+        end_idx = end_idx + len(inp)
+        score_per_word.append(np.max(score_per_char[start_idx:end_idx]))
+
+        # TODO: DELETE
+        words_from_chars.append(''.join(input_ids_chars[start_idx:end_idx]))
+
+        start_idx = end_idx
+
+    if (words_from_chars[:-1] != input[:len(words_from_chars)-1]):
+        print(words_from_chars)
+        print(input[:len(words_from_chars)])
+        print(words)
+        print(tokenizer.convert_ids_to_tokens(input_ids))
+        assert False
+
+    return torch.tensor(score_per_word)
 
 def wer(x, y):
     x = " ".join(["%d" % i for i in x])
@@ -71,7 +117,15 @@ def main(args):
     # Load tokenizer, model, and reference model
     tokenizer = AutoTokenizer.from_pretrained(args.model, use_fast=True)
     tokenizer.model_max_length = 512
-    model = AutoModelForSequenceClassification.from_pretrained(args.model, num_labels=num_labels).cuda()
+    with open(args.model, 'r') as fp:
+        model_params = json.load(fp)
+    test_classifier = BertForSequenceClassificationTest.from_pretrained("bert-base-uncased",num_labels=num_labels).cuda()
+    model_save_file = os.path
+    test_classifier.load_state_dict(torch.load(model_save_file))
+    test_classifier.eval()
+    explanations = Generator(test_classifier)
+    model = explanations.generate_LRP
+    
     if not pretrained:
         # Load model to attack
         suffix = '_finetune' if args.finetune else ''
@@ -151,8 +205,16 @@ def main(args):
         
         forbidden = np.ones(len(input_ids)).astype('bool')
         # set [CLS] and [SEP] tokens to forbidden
-        important_fragment = [[1,2], [4,5]]
-        important_fragment = sum([list(range(i[0],i[1])) for i in important_fragment],[])
+        important_fragment = []
+        cam_target = model(input_ids=input_ids, index=label)[0]
+        cam_target = cam_target.clamp(min=0)
+        cam = cam_target
+        cam = scores_per_word_from_scores_per_token(tokenizer.decode(input_ids).split(), tokenizer,input_ids[0], cam)
+        _, indices = cam.topk(k=max(0,min(5,len(input_ids)-2)))
+        for index in indices.tolist():
+            important_fragment.append(index)
+        print(important_fragment)
+        #important_fragment = sum([list(range(i[0],i[1])) for i in important_fragment],[])
         forbidden[important_fragment] = False
         offset = 0 if args.model == 'gpt2' else 1
         if args.dataset == 'mnli':
@@ -266,7 +328,7 @@ def main(args):
         choice_list = []
         with torch.no_grad():
             for j in range(args.gumbel_samples):
-                adv_ids = F.gumbel_softmax(log_coeffs, hard=True).argmax(1).numpy()
+                adv_ids = F.gumbel_softmax(log_coeffs, hard=True).argmax(1).cpu().numpy()
                 adv_ids = torch.from_numpy(adv_ids * (~forbidden) + input_ids * forbidden).cuda()
                 if args.dataset == 'mnli':
                     if args.attack_target == 'premise':
