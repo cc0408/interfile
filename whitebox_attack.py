@@ -203,10 +203,11 @@ def main(args):
         forbidden = np.ones(len(input_ids)).astype('bool')
         # set [CLS] and [SEP] tokens to forbidden
         important_fragment = []
-        cam_target = model(input_ids==torch.LongTensor(input_ids), index=label)[0]
+        cam_target = model(input_ids=torch.LongTensor(input_ids).unsequeeze(0), index=label)[0]
         cam_target = cam_target.clamp(min=0)
         cam = cam_target
-        cam = scores_per_word_from_scores_per_token(tokenizer.decode(input_ids).split(), tokenizer,input_ids[0], cam)
+        inp = [tokenizer.decode(i) for i in input_ids]
+        cam = scores_per_word_from_scores_per_token(inp, tokenizer,input_ids[0], cam)
         _, indices = cam.topk(k=max(0,min(5,len(input_ids)-2)))
         for index in indices.tolist():
             important_fragment.append(index)
