@@ -154,6 +154,7 @@ def main(args):
         important_fragment = [[1,2], [4,5]]
         important_fragment = sum([list(range(i[0],i[1])) for i in important_fragment],[])
         forbidden[important_fragment] = False
+        nsample = torch.from_numpy(forbidden).cuda()
         offset = 0 if args.model == 'gpt2' else 1
         if args.dataset == 'mnli':
             # set either premise or hypothesis to forbidden
@@ -267,7 +268,7 @@ def main(args):
         with torch.no_grad():
             for j in range(args.gumbel_samples):
                 adv_ids = F.gumbel_softmax(log_coeffs, hard=True).argmax(1)
-                adv_ids = adv_ids * (~forbidden) + input_ids *forbidden
+                adv_ids = adv_ids * (~nsample) + input_ids * nsample
                 if args.dataset == 'mnli':
                     if args.attack_target == 'premise':
                         adv_ids_premise = adv_ids[offset:(premise_length-offset)].cpu().tolist()
