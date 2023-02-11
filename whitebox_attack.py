@@ -149,10 +149,12 @@ def main(args):
         print('LOGITS')
         print(clean_logit)
         
-        forbidden = np.zeros(len(input_ids)).astype('bool')
+        forbidden = np.ones(len(input_ids)).astype('bool')
         # set [CLS] and [SEP] tokens to forbidden
-        forbidden[0] = True
-        forbidden[-1] = True
+        important_fragment = [[1,2], [4,5]]
+        important_fragment = sum([list(range(i[0],i[1])) for i in important_fragment],[])
+        forbidden = ~forbidden
+        forbidden[important_fragment] = False
         offset = 0 if args.model == 'gpt2' else 1
         if args.dataset == 'mnli':
             # set either premise or hypothesis to forbidden
