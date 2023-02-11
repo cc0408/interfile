@@ -120,7 +120,7 @@ def main(args):
     with open(args.model, 'r') as fp:
         model_params = json.load(fp)
     test_classifier = BertForSequenceClassificationTest.from_pretrained("bert-base-uncased",num_labels=num_labels).cuda()
-    model_save_file = os.path
+    model_save_file = os.path.join('bert_models/movies/classifier','classifier.pt')
     test_classifier.load_state_dict(torch.load(model_save_file))
     test_classifier.eval()
     explanations = Generator(test_classifier)
