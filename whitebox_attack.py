@@ -117,21 +117,19 @@ def main(args):
     # Load tokenizer, model, and reference model
     tokenizer = AutoTokenizer.from_pretrained(args.model, use_fast=True)
     tokenizer.model_max_length = 512
-    with open(args.model, 'r') as fp:
-        model_params = json.load(fp)
     test_classifier = BertForSequenceClassificationTest.from_pretrained("bert-base-uncased",num_labels=num_labels).cuda()
     model_save_file = os.path.join('bert_models/movies/classifier','classifier.pt')
     test_classifier.load_state_dict(torch.load(model_save_file))
     test_classifier.eval()
     explanations = Generator(test_classifier)
     model = explanations.generate_LRP
-    
+    models = AutoModelForSequenceClassification.from_pretrained(args.model, num_labels=num_labels).cuda()
     if not pretrained:
         # Load model to attack
         suffix = '_finetune' if args.finetune else ''
         model_checkpoint = os.path.join(args.result_folder, '%s_%s%s.pth' % (args.model.replace('/', '-'), args.dataset, suffix))
         print('Loading checkpoint: %s' % model_checkpoint)
-        model.load_state_dict(torch.load(model_checkpoint))
+        models.load_state_dict(torch.load(model_checkpoint))
         tokenizer.model_max_length = 512
     if args.model == 'gpt2':
         tokenizer.padding_side = "right"
@@ -144,7 +142,7 @@ def main(args):
     else:
         ref_model = AutoModelForCausalLM.from_pretrained(args.model, output_hidden_states=True).cuda()
     with torch.no_grad():
-        embeddings = model.get_input_embeddings()(torch.arange(0, tokenizer.vocab_size).long().cuda())
+        embeddings = models.get_input_embeddings()(torch.arange(0, tokenizer.vocab_size).long().cuda())
         ref_embeddings = ref_model.get_input_embeddings()(torch.arange(0, tokenizer.vocab_size).long().cuda())
         
     # encode dataset using tokenizer
