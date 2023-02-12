@@ -214,10 +214,12 @@ def main(args):
         #print(len(input_ids),cam)
         _, indices = cam.topk(k=max(1,min(5,len(input_ids)-2)))
         important_fragment=indices.tolist()
-        important_fragment = [i+1 for i in important_fragment]
+        #important_fragment = [i+1 for i in important_fragment]
         print(important_fragment)
         #important_fragment = sum([list(range(i[0],i[1])) for i in important_fragment],[])
         forbidden[important_fragment] = False
+        forbidden[0] = True
+        forbidden[-1] = True
         
         if args.dataset == 'mnli':
             # set either premise or hypothesis to forbidden
@@ -369,7 +371,7 @@ def main(args):
         #choice_list.sort(key=lambda x: (-x[0]))
         #for i in range(3):
         #    print(choice_list[i][1])
-        writer.writerow((unadv,label))
+        writer.writerow((clean_text,unadv,label))
         print("successfully attack %d, total %d"%(succ, summ))       
         # remove special tokens from adv_log_coeffs
         '''
