@@ -210,9 +210,9 @@ def main(args):
         cam = cam_target
         inp = tokenizer.decode(input_ids[offset:len(input_ids)-offset]).split() # [tokenizer.decode(i) for i in input_ids]
         cam = scores_per_word_from_scores_per_token(inp, tokenizer,input_ids, cam)
-        _, indices = cam.topk(k=max(0,min(5,len(input_ids)-2)))
-        for index in indices.tolist():
-            important_fragment.append(index)
+        print(len(input_ids),cam)
+        _, indices = cam.topk(k=max(1,min(5,len(input_ids)-2)))
+        important_fragment=indices.tolist()
         print(important_fragment)
         #important_fragment = sum([list(range(i[0],i[1])) for i in important_fragment],[])
         forbidden[important_fragment] = False
