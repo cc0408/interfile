@@ -208,11 +208,13 @@ def main(args):
         cam_target = model(input_ids=torch.LongTensor(input_ids).unsqueeze(0).cuda(), index=label)[0]
         cam_target = cam_target.clamp(min=0)
         cam = cam_target
-        inp = tokenizer.decode(input_ids[offset:len(input_ids)-offset]).split() # [tokenizer.decode(i) for i in input_ids]
+        #inp = tokenizer.decode(input_ids[offset:len(input_ids)-offset]).split() 
+        inp = [tokenizer.decode(i) for i in input_ids[offset:len(input_ids)-offset]]
         cam = scores_per_word_from_scores_per_token(inp, tokenizer,input_ids, cam)
         print(len(input_ids),cam)
         _, indices = cam.topk(k=max(1,min(5,len(input_ids)-2)))
         important_fragment=indices.tolist()
+        important_fragment = [i+1 for i in important_fragment]
         print(important_fragment)
         #important_fragment = sum([list(range(i[0],i[1])) for i in important_fragment],[])
         forbidden[important_fragment] = False
