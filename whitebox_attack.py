@@ -200,21 +200,22 @@ def main(args):
         print('LOGITS')
         print(clean_logit)
         
+        offset = 0 if args.model == 'gpt2' else 1
         forbidden = np.ones(len(input_ids)).astype('bool')
         # set [CLS] and [SEP] tokens to forbidden
         important_fragment = []
-        cam_target = model(input_ids=torch.LongTensor(input_ids).unsequeeze(0), index=label)[0]
+        cam_target = model(input_ids=torch.LongTensor(input_ids).unsqueeze(0).cuda(), index=label)[0]
         cam_target = cam_target.clamp(min=0)
         cam = cam_target
-        inp = [tokenizer.decode(i) for i in input_ids]
-        cam = scores_per_word_from_scores_per_token(inp, tokenizer,input_ids[0], cam)
+        inp = tokenizer.decode(input_ids[offset:len(input_ids)-offset]) # [tokenizer.decode(i) for i in input_ids]
+        cam = scores_per_word_from_scores_per_token(inp, tokenizer,input_ids, cam)
         _, indices = cam.topk(k=max(0,min(5,len(input_ids)-2)))
         for index in indices.tolist():
             important_fragment.append(index)
         print(important_fragment)
         #important_fragment = sum([list(range(i[0],i[1])) for i in important_fragment],[])
         forbidden[important_fragment] = False
-        offset = 0 if args.model == 'gpt2' else 1
+        
         if args.dataset == 'mnli':
             # set either premise or hypothesis to forbidden
             premise_length = len(tokenizer.encode(encoded_dataset[testset_key]['premise'][idx]))
