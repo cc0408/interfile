@@ -182,11 +182,11 @@ def main(args):
     #print(end_index)
     for idx in range(args.start_index, end_index):
         #if idx%100 == 0:
-        print(tokenizer.convert_ids_to_tokens(idx))
+        print(idx)
         input_ids = encoded_dataset[testset_key]['input_ids'][idx]
         #lbfile.writerow([label_perm(encoded_dataset[testset_key]['label'][idx])])
         #continue
-        #print(idx)
+        print(tokenizer.convert_ids_to_tokens(input_ids))
         if args.model == 'gpt2':
             token_type_ids = None
         else:
