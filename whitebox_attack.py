@@ -182,7 +182,7 @@ def main(args):
     #print(end_index)
     for idx in range(args.start_index, end_index):
         #if idx%100 == 0:
-        print(idx)
+        print(tokenizer.convert_ids_to_tokens(idx))
         input_ids = encoded_dataset[testset_key]['input_ids'][idx]
         #lbfile.writerow([label_perm(encoded_dataset[testset_key]['label'][idx])])
         #continue
