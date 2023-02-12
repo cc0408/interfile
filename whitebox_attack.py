@@ -192,7 +192,8 @@ def main(args):
         else:
             token_type_ids = encoded_dataset[testset_key]['token_type_ids'][idx]
         label = label_perm(encoded_dataset[testset_key]['label'][idx])
-        clean_logit = test_classifier(input_ids=torch.LongTensor(input_ids).unsqueeze(0).cuda(), token_type_ids=(None if token_type_ids is None else torch.LongTensor(token_type_ids).unsqueeze(0).cuda()))[0].data.cpu()
+        clean_logit = models(input_ids=torch.LongTensor(input_ids).unsqueeze(0).cuda(),
+                             token_type_ids=(None if token_type_ids is None else torch.LongTensor(token_type_ids).unsqueeze(0).cuda())).logits.data.cpu()
         print('LABEL')
         print(label)
         print('TEXT')
@@ -207,7 +208,7 @@ def main(args):
         cam_target = model(input_ids=torch.LongTensor(input_ids).unsqueeze(0).cuda(), index=label)[0]
         cam_target = cam_target.clamp(min=0)
         cam = cam_target
-        inp = tokenizer.decode(input_ids[offset:len(input_ids)-offset]) # [tokenizer.decode(i) for i in input_ids]
+        inp = tokenizer.decode(input_ids[offset:len(input_ids)-offset]).split() # [tokenizer.decode(i) for i in input_ids]
         cam = scores_per_word_from_scores_per_token(inp, tokenizer,input_ids, cam)
         _, indices = cam.topk(k=max(0,min(5,len(input_ids)-2)))
         for index in indices.tolist():
@@ -256,7 +257,7 @@ def main(args):
             optimizer.zero_grad()
             coeffs = F.gumbel_softmax(log_coeffs.unsqueeze(0).repeat(args.batch_size, 1, 1), hard=False) # B x T x V
             inputs_embeds = (coeffs @ embeddings[None, :, :]) # B x T x D
-            pred = model(inputs_embeds=inputs_embeds, token_type_ids=token_type_ids_batch).logits
+            pred = models(inputs_embeds=inputs_embeds, token_type_ids=token_type_ids_batch).logits
             if args.adv_loss == 'ce':
                 adv_loss = -F.cross_entropy(pred, label * torch.ones(args.batch_size).long().cuda())
             elif args.adv_loss == 'cw':
@@ -345,7 +346,8 @@ def main(args):
                     adv_text = tokenizer.decode(adv_ids)
                     x = tokenizer(adv_text, max_length=256, truncation=True, return_tensors='pt')
                     #token_errors.append(wer(adv_ids, x['input_ids'][0]))
-                adv_logit = test_classifier(input_ids=x['input_ids'].cuda(), attention_mask=x['attention_mask'].cuda(),token_type_ids=(x['token_type_ids'].cuda() if 'token_type_ids' in x else None))[0].data.cpu()
+                adv_logit = models(input_ids=x['input_ids'].cuda(), attention_mask=x['attention_mask'].cuda(),
+                                  token_type_ids=(x['token_type_ids'].cuda() if 'token_type_ids' in x else None)).logits.data.cpu()
                 #print(adv_logit.size(),type(label))
                 #choice_list.append([adv_logit[0][label],adv_text])
                 if adv_logit[0][label] > ma[0][label]:
