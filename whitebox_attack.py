@@ -43,26 +43,21 @@ def scores_per_word_from_scores_per_token(input, tokenizer, input_ids, scores_pe
     # TODO: DELETE
     words_from_chars = []
     scores_per_id = scores_per_id[1:-1]
-    #print(input,words)
     for inp in input:
         if start_idx >= len(scores_per_id):
             break
         lids = 0
         while len(inp) > lids:
-            #print(lids,words[end_idx])
-            if words[end_idx] in ['[CLS]', '[SEP]', '[UNK]', '[PAD]']:
-                end_idx += 1
-                continue
             lids += len(words[end_idx])
             end_idx += 1
         end_idx += 1
-        #print(start_idx,end_idx,lids)
         score_per_word += [torch.max(scores_per_id[start_idx:end_idx]).item()] *(end_idx-start_idx)
 
         # TODO: DELETE
         words_from_chars.append(''.join(input_ids_chars[start_idx:end_idx]))
 
         start_idx = end_idx
+    '''
     print(scores_per_id,score_per_word)
     if (words_from_chars[:-1] != input[:len(words_from_chars)-1]):
         print(words_from_chars)
@@ -70,7 +65,7 @@ def scores_per_word_from_scores_per_token(input, tokenizer, input_ids, scores_pe
         print(words)
         print(tokenizer.convert_ids_to_tokens(input_ids))
         assert False
-
+    '''
     return torch.tensor(score_per_word)
 
 def wer(x, y):
@@ -212,7 +207,7 @@ def main(args):
         cam_target = cam_target.clamp(min=0)
         cam = cam_target
         #inp = tokenizer.decode(input_ids[offset:len(input_ids)-offset]).split() 
-        inp = [tokenizer.decode(i) for i in input_ids[offset:len(input_ids)-offset]]
+        inp = [tokenizer.decode(i) for i in input_ids]
         #cam = scores_per_word_from_scores_per_token(inp, tokenizer,input_ids, cam)
         #print(len(input_ids),cam)
         _, indices = cam.topk(k=max(1,min(5,len(input_ids)-2)))
