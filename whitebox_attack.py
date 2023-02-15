@@ -43,7 +43,7 @@ def scores_per_word_from_scores_per_token(input, tokenizer, input_ids, scores_pe
     # TODO: DELETE
     words_from_chars = []
     scores_per_id = scores_per_id[1:-1]
-    print(input,scores_per_id)
+    print(input,words)
     for inp in input:
         if start_idx >= len(scores_per_id):
             break
