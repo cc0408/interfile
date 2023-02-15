@@ -47,8 +47,9 @@ def scores_per_word_from_scores_per_token(input, tokenizer, input_ids, scores_pe
             break
         lids = 0
         while len(inp) > lids:
-            print(lids,words[end_idx])
+            #print(lids,words[end_idx])
             if words[end_idx] in ['[CLS]', '[SEP]', '[UNK]', '[PAD]']:
+                end_idx += 1
                 continue
             lids += len(words[end_idx])
             end_idx += 1
