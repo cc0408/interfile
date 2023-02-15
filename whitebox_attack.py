@@ -40,9 +40,8 @@ def scores_per_word_from_scores_per_token(input, tokenizer, input_ids, scores_pe
     # TODO: DELETE
 
     for i in range(len(scores_per_id)):
-        if words[i] in ['[CLS]', '[SEP]', '[UNK]', '[PAD]']:
-            continue
-        score_per_char += [scores_per_id[i]] * len(words[i])
+        
+        score_per_char += [scores_per_id[i]]
 
 
     score_per_word = []
@@ -53,8 +52,14 @@ def scores_per_word_from_scores_per_token(input, tokenizer, input_ids, scores_pe
     for inp in input:
         if start_idx >= len(score_per_char):
             break
-        end_idx = end_idx + len(inp)
-        score_per_word.append(np.max(score_per_char[start_idx:end_idx]))
+        lids = 0
+        while len(inp) > lids:
+            if words[end_idx] in ['[CLS]', '[SEP]', '[UNK]', '[PAD]']:
+                continue
+            lids += len(words[end_idx])
+            end_idx += 1
+        end_idx += 1
+        score_per_word += [np.max(score_per_char[start_idx:end_idx])] *(end_idx-start_idx)
 
         # TODO: DELETE
         words_from_chars.append(''.join(input_ids_chars[start_idx:end_idx]))
@@ -209,11 +214,16 @@ def main(args):
         cam_target = cam_target.clamp(min=0)
         cam = cam_target
         #inp = tokenizer.decode(input_ids[offset:len(input_ids)-offset]).split() 
-        #inp = [tokenizer.decode(i) for i in input_ids[offset:len(input_ids)-offset]]
+        inp = [tokenizer.decode(i) for i in input_ids[offset:len(input_ids)-offset]]
         #cam = scores_per_word_from_scores_per_token(inp, tokenizer,input_ids, cam)
         #print(len(input_ids),cam)
         _, indices = cam.topk(k=max(1,min(5,len(input_ids)-2)))
-        important_fragment=indices.tolist()
+        lowbd = _[-1]-1e-6
+        cam = scores_per_word_from_scores_per_token(inp, tokenizer,input_ids, cam)
+        for i,idx in enumerate(cam):
+            if i > lowbd:
+                important_fragment.append(idx)
+        #important_fragment=indices.tolist()
         #important_fragment = [i+1 for i in important_fragment]
         print(important_fragment)
         #important_fragment = sum([list(range(i[0],i[1])) for i in important_fragment],[])
