@@ -211,7 +211,7 @@ def main(args):
         #cam = scores_per_word_from_scores_per_token(inp, tokenizer,input_ids, cam)
         #print(len(input_ids),cam)
         _, indices = cam.topk(k=max(1,min(5,len(input_ids)-2)))
-        lowbd = _[-1]-1e-6
+        lowbd = _[-1]-1e-4
         cam = scores_per_word_from_scores_per_token(inp, tokenizer,input_ids, cam)
         for zz in range(len(cam)):
             if cam[zz] > lowbd:
