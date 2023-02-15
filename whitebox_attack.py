@@ -29,7 +29,6 @@ from ExplanationGenerator import Generator
 def scores_per_word_from_scores_per_token(input, tokenizer, input_ids, scores_per_id):
     words = tokenizer.convert_ids_to_tokens(input_ids)
     words = [word.replace('##', '') for word in words]
-    score_per_char = []
 
     # TODO: DELETE
     input_ids_chars = []
@@ -37,12 +36,6 @@ def scores_per_word_from_scores_per_token(input, tokenizer, input_ids, scores_pe
         if word in ['[CLS]', '[SEP]', '[UNK]', '[PAD]']:
             continue
         input_ids_chars += list(word)
-    # TODO: DELETE
-
-    for i in range(len(scores_per_id)):
-        
-        score_per_char += [scores_per_id[i]]
-
 
     score_per_word = []
     start_idx = 0
@@ -50,7 +43,7 @@ def scores_per_word_from_scores_per_token(input, tokenizer, input_ids, scores_pe
     # TODO: DELETE
     words_from_chars = []
     for inp in input:
-        if start_idx >= len(score_per_char):
+        if start_idx >= len(scores_per_id):
             break
         lids = 0
         while len(inp) > lids:
@@ -59,7 +52,7 @@ def scores_per_word_from_scores_per_token(input, tokenizer, input_ids, scores_pe
             lids += len(words[end_idx])
             end_idx += 1
         end_idx += 1
-        score_per_word += [np.max(score_per_char[start_idx:end_idx])] *(end_idx-start_idx)
+        score_per_word += [np.max(scores_per_id[start_idx:end_idx])] *(end_idx-start_idx)
 
         # TODO: DELETE
         words_from_chars.append(''.join(input_ids_chars[start_idx:end_idx]))
