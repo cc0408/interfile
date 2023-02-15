@@ -55,7 +55,7 @@ def scores_per_word_from_scores_per_token(input, tokenizer, input_ids, scores_pe
             end_idx += 1
             #print(end_idx,inp)
         end_idx += 1
-        score_per_word += [np.max(scores_per_id[start_idx:end_idx].numpy())] *(end_idx-start_idx)
+        score_per_word += [torch.max(scores_per_id[start_idx:end_idx])] *(end_idx-start_idx)
 
         # TODO: DELETE
         words_from_chars.append(''.join(input_ids_chars[start_idx:end_idx]))
