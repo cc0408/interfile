@@ -360,6 +360,7 @@ def main(args):
                 if adv_logit[0][label] > ma[0][label]:
                     ma = adv_logit
                     unadv = adv_text
+                    z=x['input_ids']
                 if j == args.gumbel_samples - 1:
                     if args.dataset == 'mnli':
                         #adv_texts['premise'].append(adv_premise)
@@ -367,7 +368,7 @@ def main(args):
                         print('%s %s' % (adv_premise, adv_hypothesis))
                     else:
                         adv_texts.append(unadv)
-                        print(unadv)
+                        print(unadv,input_ids,z)
                     #adv_logits.append(ma)
                     break
         #choice_list = list(set(choice_list))
