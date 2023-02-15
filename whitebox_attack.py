@@ -46,8 +46,8 @@ def scores_per_word_from_scores_per_token(input, tokenizer, input_ids, scores_pe
         if start_idx >= len(scores_per_id):
             break
         lids = 0
-        print('3',inp)
         while len(inp) > lids:
+            print(lids,words[end_idx])
             if words[end_idx] in ['[CLS]', '[SEP]', '[UNK]', '[PAD]']:
                 continue
             lids += len(words[end_idx])
@@ -214,9 +214,7 @@ def main(args):
         #print(len(input_ids),cam)
         _, indices = cam.topk(k=max(1,min(5,len(input_ids)-2)))
         lowbd = _[-1]-1e-6
-        print("22222222222")
         cam = scores_per_word_from_scores_per_token(inp, tokenizer,input_ids, cam)
-        print('111111111')
         for i,idx in enumerate(cam):
             if i > lowbd:
                 important_fragment.append(idx)
