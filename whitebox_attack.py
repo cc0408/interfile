@@ -213,7 +213,7 @@ def main(args):
         _, indices = cam.topk(k=max(1,min(5,len(input_ids)-2)))
         lowbd = _[-1]-1e-6
         cam = scores_per_word_from_scores_per_token(inp, tokenizer,input_ids, cam)
-        for idx in len(cam):
+        for idx in range(len(cam)):
             if cam[idx] > lowbd:
                 important_fragment.append(idx)
         #important_fragment=indices.tolist()
