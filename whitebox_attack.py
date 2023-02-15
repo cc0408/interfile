@@ -51,7 +51,7 @@ def scores_per_word_from_scores_per_token(input, tokenizer, input_ids, scores_pe
                 continue
             lids += len(words[end_idx])
             end_idx += 1
-            print(end_idx,inp)
+            #print(end_idx,inp)
         end_idx += 1
         score_per_word += [np.max(scores_per_id[start_idx:end_idx])] *(end_idx-start_idx)
 
@@ -211,8 +211,10 @@ def main(args):
         inp = [tokenizer.decode(i) for i in input_ids[offset:len(input_ids)-offset]]
         #cam = scores_per_word_from_scores_per_token(inp, tokenizer,input_ids, cam)
         #print(len(input_ids),cam)
+        print('111111111')
         _, indices = cam.topk(k=max(1,min(5,len(input_ids)-2)))
         lowbd = _[-1]-1e-6
+        print("22222222222")
         cam = scores_per_word_from_scores_per_token(inp, tokenizer,input_ids, cam)
         for i,idx in enumerate(cam):
             if i > lowbd:
