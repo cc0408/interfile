@@ -38,8 +38,8 @@ def scores_per_word_from_scores_per_token(input, tokenizer, input_ids, scores_pe
         input_ids_chars += list(word)
 
     score_per_word = []
-    start_idx = 1
-    end_idx = 1
+    start_idx = 0
+    end_idx = 0
     # TODO: DELETE
     words_from_chars = []
     scores_per_id = scores_per_id[1:-1]
