@@ -182,6 +182,7 @@ def main(args):
         #if idx%100 == 0:
         print(idx)
         input_ids = encoded_dataset[testset_key]['input_ids'][idx]
+        input_ids = tokenizer.encode("If you're in the mood for some movie fun, then Wasabi is a perfect place to begin your journey.")
         #lbfile.writerow([label_perm(encoded_dataset[testset_key]['label'][idx])])
         #continue
         print(tokenizer.convert_ids_to_tokens(input_ids))
