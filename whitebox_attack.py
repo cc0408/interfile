@@ -189,7 +189,7 @@ def main(args):
         if args.model == 'gpt2':
             token_type_ids = None
         else:
-            token_type_ids = encoded_dataset[testset_key]['token_type_ids'][idx]
+            token_type_ids = None
         label = label_perm(encoded_dataset[testset_key]['label'][idx])
         clean_logit = models(input_ids=torch.LongTensor(input_ids).unsqueeze(0).cuda(),
                              token_type_ids=(None if token_type_ids is None else torch.LongTensor(token_type_ids).unsqueeze(0).cuda())).logits.data.cpu()
