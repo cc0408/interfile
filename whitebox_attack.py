@@ -42,7 +42,6 @@ def scores_per_word_from_scores_per_token(input, tokenizer, input_ids, scores_pe
     end_idx = 0
     # TODO: DELETE
     words_from_chars = []
-    scores_per_id = scores_per_id[1:-1]
     
     for inp in input:
         if start_idx >= len(scores_per_id):
@@ -57,7 +56,7 @@ def scores_per_word_from_scores_per_token(input, tokenizer, input_ids, scores_pe
         words_from_chars.append(''.join(input_ids_chars[start_idx:end_idx]))
 
         start_idx = end_idx
-    print(scores_per_id,score_per_word)
+    #print(scores_per_id,score_per_word)
     '''
     print(scores_per_id,score_per_word)
     if (words_from_chars[:-1] != input[:len(words_from_chars)-1]):
