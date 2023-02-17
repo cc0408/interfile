@@ -150,7 +150,7 @@ def main(args):
             examples['premise'], examples['hypothesis'], max_length=256, truncation=True)
     else:
         text_key = 'text' if (args.dataset in ["ag_news", "imdb", "yelp", "sst2", "sst5"]) else 'sentence'
-        testset_key = 'train' if (args.dataset in ["ag_news", "imdb", "yelp", "sst2", "sst5"]) else 'validation'
+        testset_key = 'test' if (args.dataset in ["ag_news", "imdb", "yelp", "sst2", "sst5"]) else 'validation'
         preprocess_function = lambda examples: tokenizer(examples[text_key], max_length=256, truncation=True)
     encoded_dataset = dataset.map(preprocess_function, batched=True)
         
@@ -209,10 +209,11 @@ def main(args):
         #inp = tokenizer.decode(input_ids[offset:len(input_ids)-offset]).split() 
         inp = [tokenizer.decode(i) for i in input_ids]
         #cam = scores_per_word_from_scores_per_token(inp, tokenizer,input_ids, cam)
-        #print(len(input_ids),cam)
+        print(cam)
         _, indices = cam.topk(k=max(1,min(5,len(input_ids)-2)))
-        lowbd = _[-1]-1e-4
+        lowbd = _[-1]-1e-6
         cam = scores_per_word_from_scores_per_token(inp, tokenizer,input_ids, cam)
+        print(cam)
         for zz in range(len(cam)):
             if cam[zz] > lowbd:
                 important_fragment.append(zz)
