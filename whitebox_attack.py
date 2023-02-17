@@ -217,6 +217,7 @@ def main(args):
                 important_fragment.append(zz)
         #important_fragment=indices.tolist()
         #important_fragment = [i+1 for i in important_fragment]
+        important_fragment = [i for i in range(len(input_ids))]
         print(important_fragment)
         print(np.array(tokenizer.convert_ids_to_tokens(input_ids))[important_fragment])
         #important_fragment = sum([list(range(i[0],i[1])) for i in important_fragment],[])
