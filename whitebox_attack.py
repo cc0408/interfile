@@ -43,7 +43,7 @@ def scores_per_word_from_scores_per_token(input, tokenizer, input_ids, scores_pe
     # TODO: DELETE
     words_from_chars = []
     scores_per_id = scores_per_id[1:-1]
-    print(input,words)
+    
     for inp in input:
         if start_idx >= len(scores_per_id):
             break
@@ -51,13 +51,13 @@ def scores_per_word_from_scores_per_token(input, tokenizer, input_ids, scores_pe
         while len(inp) > lids:
             lids += len(words[end_idx])
             end_idx += 1
-        print(inp,lids,start_idx,end_idx)
         score_per_word += [torch.max(scores_per_id[start_idx:end_idx]).item()] *(end_idx-start_idx)
 
         # TODO: DELETE
         words_from_chars.append(''.join(input_ids_chars[start_idx:end_idx]))
 
         start_idx = end_idx
+    print(scores_per_id,score_per_word)
     '''
     print(scores_per_id,score_per_word)
     if (words_from_chars[:-1] != input[:len(words_from_chars)-1]):
