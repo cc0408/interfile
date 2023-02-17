@@ -150,7 +150,7 @@ def main(args):
             examples['premise'], examples['hypothesis'], max_length=256, truncation=True)
     else:
         text_key = 'text' if (args.dataset in ["ag_news", "imdb", "yelp", "sst2", "sst5"]) else 'sentence'
-        testset_key = 'train' if (args.dataset in ["ag_news", "imdb", "yelp", "sst2", "sst5"]) else 'validation'
+        testset_key = 'test' if (args.dataset in ["ag_news", "imdb", "yelp", "sst2", "sst5"]) else 'validation'
         preprocess_function = lambda examples: tokenizer(examples[text_key], max_length=256, truncation=True)
     encoded_dataset = dataset.map(preprocess_function, batched=True)
         
