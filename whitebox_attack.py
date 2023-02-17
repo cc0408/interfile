@@ -207,8 +207,8 @@ def main(args):
         cam_target = model(input_ids=torch.LongTensor(input_ids).unsqueeze(0).cuda(), index=label)[0]
         cam_target = cam_target.clamp(min=0)
         cam = cam_target
-        #inp = tokenizer.decode(input_ids[offset:len(input_ids)-offset]).split() 
-        inp = [tokenizer.decode(i) for i in input_ids]
+        inp = tokenizer.decode(input_ids[offset:len(input_ids)-offset]).split() 
+        #inp = [tokenizer.decode(i) for i in input_ids]
         #cam = scores_per_word_from_scores_per_token(inp, tokenizer,input_ids, cam)
         print(cam)
         _, indices = cam.topk(k=max(1,min(5,len(input_ids)-2)))
