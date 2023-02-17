@@ -218,6 +218,7 @@ def main(args):
         #important_fragment=indices.tolist()
         #important_fragment = [i+1 for i in important_fragment]
         print(important_fragment)
+        print(tokenizer.convert_ids_to_tokens(input_ids)[important_fragment])
         #important_fragment = sum([list(range(i[0],i[1])) for i in important_fragment],[])
         forbidden[important_fragment] = False
         forbidden[0] = True
