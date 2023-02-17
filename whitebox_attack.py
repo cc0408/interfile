@@ -182,14 +182,14 @@ def main(args):
         #if idx%100 == 0:
         print(idx)
         input_ids = encoded_dataset[testset_key]['input_ids'][idx]
-        input_ids = tokenizer.encode("If you're in the mood for some movie fun, then Wasabi is a perfect place to begin your journey.")
+        #input_ids = tokenizer.encode()
         #lbfile.writerow([label_perm(encoded_dataset[testset_key]['label'][idx])])
         #continue
         print(tokenizer.convert_ids_to_tokens(input_ids))
         if args.model == 'gpt2':
             token_type_ids = None
         else:
-            token_type_ids = None
+            token_type_ids = encoded_dataset[testset_key]['token_type_ids'][idx]
         label = label_perm(encoded_dataset[testset_key]['label'][idx])
         clean_logit = models(input_ids=torch.LongTensor(input_ids).unsqueeze(0).cuda(),
                              token_type_ids=(None if token_type_ids is None else torch.LongTensor(token_type_ids).unsqueeze(0).cuda())).logits.data.cpu()
